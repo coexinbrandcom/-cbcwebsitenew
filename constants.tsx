@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Brain, Code, Zap, BarChart3 } from 'lucide-react';
+import { Brain, Zap, Cpu, BarChart3 } from 'lucide-react';
 import { Pillar } from './types';
 
 export const PILLARS: Pillar[] = [
@@ -8,36 +8,36 @@ export const PILLARS: Pillar[] = [
     id: 'strategy',
     number: '01',
     title: 'Strategy',
-    focus: 'Market Intelligence and Positioning',
-    description: 'We don’t just plan; we build a foundation for success. By studying market dynamics and brand architecture, we create the clarity your business needs to grow.',
-    techFlex: 'Deep brand architecture and positioning strategy.',
+    focus: 'Market Intelligence',
+    description: 'Market Dynamics & Brand Architecture. We look at your market and how your brand fits in. Then we build a plan based on facts, not guesses.',
+    techFlex: 'Clean & Corporate Aesthetic',
     icon: 'Brain'
   },
   {
     id: 'tactics',
     number: '02',
     title: 'Tactics',
-    focus: 'Omnichannel Growth and Performance',
-    description: 'We turn your vision into momentum. Our team executes high-impact growth campaigns across the right channels to build immediate market presence.',
-    techFlex: 'Responsive interfaces and performance marketing operations.',
+    focus: 'Omnichannel Execution',
+    description: 'High-performance marketing and execution. We handle the day-to-day marketing and execution to turn your plans into real-world sales.',
+    techFlex: 'Active UI & Motion Graphics',
     icon: 'Zap'
   },
   {
     id: 'software',
     number: '03',
     title: 'Software',
-    focus: 'Digital Platforms and Custom Experience',
-    description: 'We build the digital backbone of your business. Our custom platforms and user experiences are designed to scale alongside your ambitions.',
-    techFlex: 'Modern web architectures and seamless system integrations.',
-    icon: 'Code'
+    focus: 'Systems Integration',
+    description: 'Full-stack engineering and custom platforms. We build the technical foundation your business needs to run smoothly.',
+    techFlex: 'Component-Based Architecture',
+    icon: 'Cpu'
   },
   {
     id: 'analytics',
     number: '04',
     title: 'Analytics',
-    focus: 'Data Science and Attribution',
-    description: 'Transparency is our standard. We provide clear attribution models and real-time dashboards so you know exactly how your investment is performing.',
-    techFlex: 'Predictive modeling and live performance tracking.',
+    focus: 'Data Science',
+    description: 'Attribution models and ROI tracking. We track your results and show you the data behind every move we make.',
+    techFlex: 'Live-Rendered Data Points',
     icon: 'BarChart3'
   }
 ];
@@ -45,6 +45,6 @@ export const PILLARS: Pillar[] = [
 export const PILLAR_ICONS: Record<string, React.ReactNode> = {
   Brain: <Brain className="w-6 h-6" />,
   Zap: <Zap className="w-6 h-6" />,
-  Code: <Code className="w-6 h-6" />,
+  Cpu: <Cpu className="w-6 h-6" />,
   BarChart3: <BarChart3 className="w-6 h-6" />,
 };

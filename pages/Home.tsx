@@ -1,10 +1,18 @@
-
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import PillarGrid from '../components/PillarGrid';
 import Capabilities from '../components/Capabilities';
+import Industries from '../components/Industries';
+import FounderPreview from '../components/Founder';
+import { useSEO } from '@/src/hooks/useSEO';
 
 const Home: React.FC = () => {
+  useSEO({
+    title: 'Strategic Insight, Digital Engineering & Brand Authority',
+    description: 'Coexin Brandcom provides high-performance brand strategy, custom software engineering, and creative production. We build the growth engines that power market leaders.'
+  });
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
@@ -24,43 +32,53 @@ const Home: React.FC = () => {
       </div>
 
       <Hero />
-      <div id="strategy" className="relative">
-        <PillarGrid />
-      </div>
+      
+      {/* The "Core Four" Interconnected Pillars */}
+      <PillarGrid />
+      
+      {/* Deep Dive Capabilities */}
       <Capabilities />
-      <div id="tactics" className="relative">
-        <section className="py-24 bg-cyan-500">
+      
+      {/* Industry Verticals */}
+      <Industries />
+
+      {/* The Specialist Section */}
+      <FounderPreview />
+
+      {/* Call to Action Segment */}
+      <div id="tactics" className="relative scroll-mt-20">
+        <section className="py-32 bg-cyan-500">
            <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-12 text-black">
               <div className="max-w-2xl">
                 <h3 className="font-space text-4xl md:text-6xl font-bold tracking-tighter leading-none mb-6">
-                  Ready to Grow?
+                  Ready to Dominant Your Market?
                 </h3>
                 <p className="text-black/80 text-lg font-medium leading-relaxed">
-                  We are now accepting new partnerships for the coming quarter. Start a conversation today and find out how we can help your brand dominate.
+                  Precision strategy. Powerful software. Provocative creative. Our team is ready to engineer your next outcomes.
                 </p>
               </div>
-              <button className="whitespace-nowrap bg-black text-white font-space font-bold py-6 px-16 text-xl uppercase tracking-widest hover:bg-zinc-900 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl">
-                Request Growth Audit
-              </button>
+              <Link to="/contact" className="whitespace-nowrap bg-black text-white font-space font-bold py-6 px-16 text-xl uppercase tracking-widest hover:bg-zinc-900 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl">
+                Request a Briefing
+              </Link>
            </div>
         </section>
       </div>
 
-      <section className="py-32 bg-black overflow-hidden">
+      <section className="py-32 bg-black overflow-hidden border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6">
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
               <div className="flex flex-col justify-center">
                 <h2 className="font-space text-xs uppercase tracking-[0.5em] text-cyan-500 font-bold mb-6">Our Philosophy</h2>
                 <h3 className="font-space text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-12 text-white">
-                  Strategy with Vision.<br />
-                  Data with Purpose.
+                  Beyond Aesthetics.<br />
+                  Built for Impact.
                 </h3>
                 <div className="space-y-8 text-zinc-400 text-lg font-light leading-relaxed max-w-lg">
                   <p>
-                    Success isn't accidental; it’s designed. We believe that every strategic move and every line of code should result in a clear, measurable outcome for your business.
+                    In a fragmented digital economy, a brand cannot survive on "creative flair" alone. True market dominance requires the intersection of four distinct disciplines: deep-data strategy, omnichannel tactics, robust software architecture, and verifiable analytics.
                   </p>
                   <p>
-                    We value long-term results over short-term trends. By combining logic with creativity, we build brands that don’t just survive—they lead the way.
+                    At Coexin Brandcom, we don't just design interfaces; we engineer digital ecosystems and consult on the strategic implementation required to turn vision into measurable legacy.
                   </p>
                 </div>
               </div>
@@ -75,7 +93,7 @@ const Home: React.FC = () => {
                 </div>
                 <div className="absolute -bottom-10 -left-10 bg-black border border-white/10 p-8 hidden md:block backdrop-blur-xl">
                   <p className="font-space text-5xl font-bold text-cyan-500 mb-2">94%</p>
-                  <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Client Success Rate</p>
+                  <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Project Success Rate</p>
                 </div>
               </div>
            </div>

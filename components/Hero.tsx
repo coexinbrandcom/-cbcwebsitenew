@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Code } from 'lucide-react';
 
 const Hero: React.FC = () => {
@@ -37,25 +38,25 @@ const Hero: React.FC = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
             </span>
-            <span>Your Integrated Growth Partner</span>
+            <span>A partner for strategy and technical execution</span>
           </div>
           
           <h1 className="font-space text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-8">
-            Precision Strategy.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-white">Powerful Software.</span><br />
-            Provocative Creative.
+            Strategic Insight.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-white">Digital Engineering.</span><br />
+            Brand Authority.
           </h1>
           
           <p className="text-zinc-400 text-lg md:text-xl max-w-lg mb-12 leading-relaxed font-light">
-            We build brands that don’t just compete, they dominate. Coexin is an integrated communications powerhouse that aligns business intelligence with technical mastery.
+            We handle the technical work and strategy that businesses need to scale. Our team works with companies in hospitality, agriculture, and retail to build systems that actually work.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6">
-            <a href="#tactics" className="group relative flex items-center justify-center space-x-3 bg-white text-black font-bold py-5 px-10 rounded-none transition-all duration-300 transform hover:bg-cyan-500 active:scale-95 font-space text-sm uppercase tracking-widest overflow-hidden">
-              <span className="relative z-10">Start a Project</span>
+            <Link to="/contact" className="group relative flex items-center justify-center space-x-3 bg-white text-black font-bold py-5 px-10 rounded-none transition-all duration-300 transform hover:bg-cyan-500 active:scale-95 font-space text-sm uppercase tracking-widest overflow-hidden">
+              <span className="relative z-10">Request a Briefing</span>
               <ArrowRight className="relative z-10 w-4 h-4 group-hover:translate-x-2 transition-transform" />
               <div className="absolute inset-0 bg-cyan-500 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            </a>
+            </Link>
             <a href="#strategy" className="flex items-center justify-center space-x-3 border border-white/20 hover:border-cyan-500 text-white font-bold py-5 px-10 rounded-none transition-all duration-300 font-space text-sm uppercase tracking-widest backdrop-blur-sm">
               Our Capabilities
             </a>
