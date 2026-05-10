@@ -6,7 +6,6 @@ import { ArrowRight } from 'lucide-react';
 const Hero: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
-  const mouseRef = useRef({ x: 0, y: 0 });
   const [loadTime, setLoadTime] = useState('0.14s');
 
   useEffect(() => {
@@ -22,167 +21,83 @@ const Hero: React.FC = () => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
 
-    const onResize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+    let W = 0, H = 0;
+    let particles: { x: number; y: number; life: number; maxLife: number; hue: number }[] = [];
+    let t = 0;
+
+    // Flow angle at any canvas position — sum of sinusoids at different scales/phases
+    // produces smooth but complex wave interference = "organized chaos"
+    const angle = (x: number, y: number, time: number): number => {
+      const s = 0.0016;
+      return (
+        Math.sin(x * s        + time * 0.45) * Math.PI * 2 +
+        Math.cos(y * s * 1.5  - time * 0.30) * Math.PI * 2 +
+        Math.sin((x - y) * s * 0.9 + time * 0.18) * Math.PI +
+        Math.cos((x + y) * s * 0.5 - time * 0.12) * Math.PI * 0.6
+      );
     };
-    onResize();
+
+    const spawn = (): typeof particles[0] => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      life: 0,
+      maxLife: 160 + Math.random() * 220,
+      hue: 185 + Math.random() * 30,   // cyan → teal range
+    });
+
+    const init = () => {
+      W = canvas.offsetWidth;
+      H = canvas.offsetHeight;
+      canvas.width  = W;
+      canvas.height = H;
+      ctx.fillStyle = '#050505';
+      ctx.fillRect(0, 0, W, H);
+
+      const count = Math.min(3200, Math.floor((W * H) / 380));
+      particles = Array.from({ length: count }, spawn);
+    };
+
+    init();
+
+    const onResize = () => { init(); };
     window.addEventListener('resize', onResize);
 
-    const onMouse = (e: MouseEvent) => {
-      mouseRef.current = {
-        x: (e.clientX / window.innerWidth - 0.5) * 2,
-        y: (e.clientY / window.innerHeight - 0.5) * 2,
-      };
-    };
-    window.addEventListener('mousemove', onMouse);
-
-    // ── Unit-sphere wireframe lines ──────────────────────────────────
-    const LAT = 9, LON = 14, SEG = 56;
-    type Line = [number, number, number][];
-    const sphereLines: Line[] = [];
-
-    for (let i = 1; i < LAT; i++) {
-      const phi = (Math.PI * i) / LAT;
-      const line: Line = [];
-      for (let j = 0; j <= SEG; j++) {
-        const t = (2 * Math.PI * j) / SEG;
-        line.push([Math.sin(phi) * Math.cos(t), Math.cos(phi), Math.sin(phi) * Math.sin(t)]);
-      }
-      sphereLines.push(line);
-    }
-    for (let i = 0; i < LON; i++) {
-      const t = (2 * Math.PI * i) / LON;
-      const line: Line = [];
-      for (let j = 0; j <= SEG; j++) {
-        const phi = (Math.PI * j) / SEG;
-        line.push([Math.sin(phi) * Math.cos(t), Math.cos(phi), Math.sin(phi) * Math.sin(t)]);
-      }
-      sphereLines.push(line);
-    }
-
-    // ── Floating particles ───────────────────────────────────────────
-    const particles = Array.from({ length: 90 }, () => ({
-      x: (Math.random() - 0.5) * 2,
-      y: (Math.random() - 0.5) * 2,
-      z: (Math.random() - 0.5) * 2,
-      vx: (Math.random() - 0.5) * 0.0015,
-      vy: (Math.random() - 0.5) * 0.0015,
-      vz: (Math.random() - 0.5) * 0.0015,
-    }));
-
-    // ── Rotation state ───────────────────────────────────────────────
-    let rotX = 0, rotY = 0;
-
-    const rotate = (x: number, y: number, z: number, ax: number, ay: number): [number, number, number] => {
-      const cosX = Math.cos(ax), sinX = Math.sin(ax);
-      const y1 = y * cosX - z * sinX;
-      const z1 = y * sinX + z * cosX;
-      const cosY = Math.cos(ay), sinY = Math.sin(ay);
-      const x2 = x * cosY + z1 * sinY;
-      const z2 = -x * sinY + z1 * cosY;
-      return [x2, y1, z2];
-    };
+    const SPEED  = 1.6;
+    const FADE   = 'rgba(5,5,5,0.012)'; // very slow fade → long trailing strokes
 
     const draw = () => {
-      const W = canvas.width;
-      const H = canvas.height;
-      ctx.clearRect(0, 0, W, H);
+      // Slowly erase old trails — this IS the wave effect
+      ctx.fillStyle = FADE;
+      ctx.fillRect(0, 0, W, H);
 
-      // Smoothly track mouse
-      rotX += (mouseRef.current.y * 0.12 - rotX) * 0.025 + 0.0025;
-      rotY += (mouseRef.current.x * 0.12 - rotY) * 0.025 + 0.005;
+      t += 0.004;
 
-      // Responsive sizing
-      const R = Math.min(W * 0.28, H * 0.40, 280);
-      const FOV = R * 2.8;
-      const wide = W > 900;
-      // Sphere origin: right-center on desktop, bottom-center on mobile
-      const ox = wide ? W * 0.64 : W * 0.5;
-      const oy = wide ? H * 0.5 : H * 0.72;
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
 
-      const proj = (wx: number, wy: number, wz: number) => {
-        const px = wx * R, py = wy * R, pz = wz * R;
-        const d = FOV / (FOV + pz + R * 0.5);
-        return { sx: px * d, sy: py * d, pz, d };
-      };
+        const a  = angle(p.x, p.y, t);
+        const nx = p.x + Math.cos(a) * SPEED;
+        const ny = p.y + Math.sin(a) * SPEED;
 
-      // ── Sphere ───────────────────────────────────────────────────
-      sphereLines.forEach(line => {
-        const pts = line.map(([x, y, z]) => {
-          const [rx, ry, rz] = rotate(x, y, z, rotX, rotY);
-          return proj(rx, ry, rz);
-        });
+        p.life++;
+        // Envelope: fade in for first 20 steps, fade out for last 20
+        const env = Math.min(p.life / 20, 1, (p.maxLife - p.life) / 20);
+        const alpha = env * 0.55;
 
-        for (let i = 0; i < pts.length - 1; i++) {
-          const avgZ = (pts[i].pz + pts[i + 1].pz) / 2;
-          const t = Math.max(0, Math.min(1, (avgZ / R + 1) / 2));
-          const alpha = 0.04 + t * 0.46;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(nx, ny);
+        ctx.strokeStyle = `hsla(${p.hue},100%,65%,${alpha.toFixed(2)})`;
+        ctx.lineWidth = 0.9;
+        ctx.stroke();
 
-          ctx.beginPath();
-          ctx.moveTo(ox + pts[i].sx, oy + pts[i].sy);
-          ctx.lineTo(ox + pts[i + 1].sx, oy + pts[i + 1].sy);
-          ctx.strokeStyle = `rgba(0,212,255,${alpha.toFixed(2)})`;
-          ctx.lineWidth = 0.9;
-          ctx.stroke();
-        }
-      });
+        p.x = nx;
+        p.y = ny;
 
-      // Sphere vertex dots at intersections
-      const dotStep = Math.round(SEG / LON);
-      sphereLines.slice(0, LAT - 1).forEach(line => {
-        for (let i = 0; i < line.length; i += dotStep) {
-          const [x, y, z] = line[i];
-          const [rx, ry, rz] = rotate(x, y, z, rotX, rotY);
-          const p = proj(rx, ry, rz);
-          const t = Math.max(0, Math.min(1, (p.pz / R + 1) / 2));
-          if (t < 0.15) return;
-          ctx.beginPath();
-          ctx.arc(ox + p.sx, oy + p.sy, 1.5 * p.d, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(0,212,255,${(t * 0.7).toFixed(2)})`;
-          ctx.fill();
-        }
-      });
-
-      // ── Particles ────────────────────────────────────────────────
-      const PS = Math.max(W, H) * 0.52;
-      particles.forEach(p => {
-        p.x += p.vx; p.y += p.vy; p.z += p.vz;
-        if (Math.abs(p.x) > 1.1) p.vx *= -1;
-        if (Math.abs(p.y) > 1.1) p.vy *= -1;
-        if (Math.abs(p.z) > 1.1) p.vz *= -1;
-      });
-
-      const pp = particles.map(p => {
-        const [rx, ry] = rotate(p.x, p.y, p.z, rotX * 0.1, rotY * 0.1);
-        const d = FOV / (FOV + p.z * PS * 0.3 + PS);
-        return { sx: W / 2 + rx * PS * d, sy: H / 2 + ry * PS * d };
-      });
-
-      const CONN = Math.min(W, H) * 0.16;
-      for (let i = 0; i < pp.length; i++) {
-        for (let j = i + 1; j < pp.length; j++) {
-          const dx = pp[i].sx - pp[j].sx;
-          const dy = pp[i].sy - pp[j].sy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONN) {
-            const a = ((1 - dist / CONN) * 0.09).toFixed(2);
-            ctx.beginPath();
-            ctx.moveTo(pp[i].sx, pp[i].sy);
-            ctx.lineTo(pp[j].sx, pp[j].sy);
-            ctx.strokeStyle = `rgba(255,255,255,${a})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
+        if (p.life >= p.maxLife || nx < -4 || nx > W + 4 || ny < -4 || ny > H + 4) {
+          particles[i] = spawn();
         }
       }
-
-      pp.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.sx, p.sy, 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,0.22)';
-        ctx.fill();
-      });
 
       animRef.current = requestAnimationFrame(draw);
     };
@@ -192,31 +107,33 @@ const Hero: React.FC = () => {
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', onResize);
-      window.removeEventListener('mousemove', onMouse);
     };
   }, []);
 
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-[#050505]">
 
-      {/* Full-width 3D canvas */}
+      {/* Full-width flow field canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0" />
 
-      {/* Text readability gradient — opaque left, transparent right */}
+      {/* Left vignette — keeps text sharp over the animation */}
       <div
         className="absolute inset-0 z-[1] pointer-events-none"
         style={{
-          background: 'linear-gradient(105deg, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.82) 30%, rgba(5,5,5,0.35) 60%, rgba(5,5,5,0.05) 100%)',
+          background:
+            'linear-gradient(105deg, rgba(5,5,5,0.94) 0%, rgba(5,5,5,0.78) 28%, rgba(5,5,5,0.28) 58%, rgba(5,5,5,0.04) 100%)',
         }}
       />
-
-      {/* Ambient cyan glow behind sphere */}
-      <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-cyan-500/4 rounded-full blur-[110px] z-[1] pointer-events-none animate-pulse" />
+      {/* Bottom vignette so metrics row stays readable */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-40 z-[1] pointer-events-none"
+        style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.85) 0%, transparent 100%)' }}
+      />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
         <div className="relative max-w-2xl">
 
-          {/* Corner frame */}
+          {/* Corner bracket */}
           <div className="absolute -inset-4 md:-inset-10 border border-cyan-500/20 pointer-events-none hidden md:block">
             <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-500/40" />
             <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-500/40" />
