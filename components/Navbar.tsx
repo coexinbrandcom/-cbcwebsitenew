@@ -62,12 +62,6 @@ const Navbar: React.FC = () => {
             )
           ))}
           <Link
-            to="/pay"
-            className={`text-[11px] font-space font-bold transition-colors uppercase tracking-[0.2em] ${location.pathname === '/pay' ? 'text-cyan-500' : 'text-zinc-400 hover:text-cyan-500'}`}
-          >
-            Pay Invoice
-          </Link>
-          <Link
             to="/contact"
             className="bg-cyan-500 hover:bg-white text-black font-bold py-2.5 px-6 rounded-none transition-all duration-300 transform hover:scale-105 active:scale-95 font-space text-[11px] uppercase tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.3)]"
           >
@@ -114,13 +108,6 @@ const Navbar: React.FC = () => {
               </Link>
             )
           ))}
-          <Link
-            to="/pay"
-            onClick={handleLinkClick}
-            className="text-3xl font-space font-bold text-white hover:text-cyan-500 transition-colors uppercase tracking-widest"
-          >
-            Pay Invoice
-          </Link>
           <Link
             to="/contact"
             onClick={handleLinkClick}

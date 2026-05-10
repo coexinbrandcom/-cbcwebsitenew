@@ -36,7 +36,6 @@ const App: React.FC = () => {
               <Route path="/industries" element={<IndustriesPage />} />
               <Route path="/founder" element={<FounderPage />} />
               <Route path="/contact" element={<ContactPage />} />
-              <Route path="/pay" element={<PaymentPage />} />
             </Routes>
           </Suspense>
         </main>
