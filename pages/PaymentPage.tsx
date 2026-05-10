@@ -49,7 +49,7 @@ const PaymentPage: React.FC = () => {
 
     const script = document.createElement('script');
     script.id = 'paypal-sdk';
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=${invoice.currency}&intent=capture&components=buttons`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=${invoice.currency}&intent=capture&components=buttons&disable-funding=card,credit,paylater`;
     script.async = true;
     script.onload = () => setPaypalReady(true);
     script.onerror = () => {
@@ -290,7 +290,7 @@ const PaymentPage: React.FC = () => {
 
             {paypalReady && (
               <p className="mt-4 text-center text-zinc-600 text-xs">
-                You can pay with your PayPal account or a credit/debit card.
+                Pay with your PayPal account. You can add a debit or credit card inside PayPal if you don't have a balance.
               </p>
             )}
 
