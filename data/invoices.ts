@@ -14,7 +14,7 @@ export const invoices: Invoice[] = [
     invoiceNumber: 'CBC-2025-001',
     clientName: 'Sample Client',
     description: 'Brand Strategy & Identity Package — Phase 1',
-    amount: 2500.00,
+    amount: 1.00,
     currency: 'USD',
     dueDate: '2025-06-30',
     isPaid: false,
