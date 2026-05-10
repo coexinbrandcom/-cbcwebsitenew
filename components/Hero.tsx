@@ -25,6 +25,18 @@ const Hero: React.FC = () => {
     let particles: { x: number; y: number; life: number; maxLife: number; hue: number }[] = [];
     let t = 0;
 
+    // Glow positions — two followers at different lag speeds
+    let gx1 = 0, gy1 = 0;   // fast follower
+    let gx2 = 0, gy2 = 0;   // slow follower
+    let mx  = 0, my  = 0;   // raw mouse target
+
+    const onMouse = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mx = e.clientX - rect.left;
+      my = e.clientY - rect.top;
+    };
+    window.addEventListener('mousemove', onMouse);
+
     // Flow angle at any canvas position — sum of sinusoids at different scales/phases
     // produces smooth but complex wave interference = "organized chaos"
     const angle = (x: number, y: number, time: number): number => {
@@ -52,6 +64,9 @@ const Hero: React.FC = () => {
       canvas.height = H;
       ctx.fillStyle = '#050505';
       ctx.fillRect(0, 0, W, H);
+      // Seed glow to canvas centre so first frame isn't jarring
+      gx1 = gx2 = mx = W / 2;
+      gy1 = gy2 = my = H / 2;
 
       const count = Math.min(3200, Math.floor((W * H) / 380));
       particles = Array.from({ length: count }, spawn);
@@ -99,6 +114,37 @@ const Hero: React.FC = () => {
         }
       }
 
+      // ── Edge glow ─────────────────────────────────────────────────────────
+      // Lerp followers toward mouse at different speeds
+      gx1 += (mx - gx1) * 0.055;
+      gy1 += (my - gy1) * 0.055;
+      gx2 += (mx - gx2) * 0.018;
+      gy2 += (my - gy2) * 0.018;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+
+      // Ring 1 — tight, fast, peaking at ~70% radius (annular edge glow)
+      const g1 = ctx.createRadialGradient(gx1, gy1, 40, gx1, gy1, 210);
+      g1.addColorStop(0,    'hsla(192,100%,55%,0)');
+      g1.addColorStop(0.45, 'hsla(192,100%,60%,0.028)');
+      g1.addColorStop(0.72, 'hsla(192,100%,65%,0.048)');
+      g1.addColorStop(1,    'hsla(192,100%,55%,0)');
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, W, H);
+
+      // Ring 2 — wide, slow, ghostly trail behind cursor
+      const g2 = ctx.createRadialGradient(gx2, gy2, 120, gx2, gy2, 440);
+      g2.addColorStop(0,    'hsla(200,100%,60%,0)');
+      g2.addColorStop(0.38, 'hsla(200,100%,62%,0.015)');
+      g2.addColorStop(0.68, 'hsla(200,100%,65%,0.032)');
+      g2.addColorStop(1,    'hsla(200,100%,55%,0)');
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.restore();
+      // ─────────────────────────────────────────────────────────────────────
+
       animRef.current = requestAnimationFrame(draw);
     };
 
@@ -107,6 +153,7 @@ const Hero: React.FC = () => {
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('mousemove', onMouse);
     };
   }, []);
 
